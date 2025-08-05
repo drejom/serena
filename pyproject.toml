@@ -34,6 +34,13 @@ dependencies = [
   "tqdm>=4.67.1",
   "tiktoken>=0.9.0",
   "anthropic>=0.54.0",
+  "poethepoet>=0.36.0",
+  "ruff>=0.12.3",
+  "black>=25.1.0",
+  "mypy>=1.16.1",
+  "types-requests>=2.32.4.20250611",
+  "pytest>=8.4.1",
+  "pytest-snapshot>=0.9.0",
 ]
 
 [[tool.uv.index]]
@@ -247,7 +254,6 @@ max-complexity = 20
 "scripts/**" = ["D103"]
 
 [tool.pytest.ini_options]
-addopts = "--snapshot-patch-pycharm-diff"
 markers = [
   "clojure: language server running for Clojure",
   "python: language server running for Python",
@@ -256,6 +262,7 @@ markers = [
   "rust: language server running for Rust",
   "typescript: language server running for TypeScript",
   "php: language server running for PHP",
+  "r: language server running for R",
   "csharp: language server running for C#",
   "elixir: language server running for Elixir",
   "terraform: language server running for Terraform",
