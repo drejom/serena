@@ -46,7 +46,7 @@ class RLanguageServer(SolidLanguageServer):
 
             if result.returncode != 0:
                 raise RuntimeError(
-                    "R languageserver package is not installed.\n" "Install it with: R -e \"install.packages('languageserver')\""
+                    "R languageserver package is not installed.\nInstall it with: R -e \"install.packages('languageserver')\""
                 )
 
         except FileNotFoundError:

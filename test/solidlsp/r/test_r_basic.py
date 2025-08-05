@@ -1,6 +1,8 @@
 import shutil
 import subprocess
+
 import pytest
+
 from solidlsp.ls_config import Language
 
 
@@ -27,14 +29,16 @@ class TestRLanguageServer:
         """Skip tests if R is not available."""
         if not shutil.which("R"):
             pytest.skip("R is not installed")
-        
+
         # Check if languageserver package is available
         try:
-            result = subprocess.run([
-                "R", "--slave", "-e", 
-                "if (!require('languageserver', quietly=TRUE)) quit(status=1)"
-            ], capture_output=True, text=True, check=False)
-            
+            result = subprocess.run(
+                ["R", "--slave", "-e", "if (!require('languageserver', quietly=TRUE)) quit(status=1)"],
+                capture_output=True,
+                text=True,
+                check=False,
+            )
+
             if result.returncode != 0:
                 pytest.skip("R languageserver package is not installed")
         except Exception:
@@ -53,7 +57,7 @@ class TestRLanguageServer:
         import os
 
         utils_file = os.path.join("test_repo", "R", "utils.R")
-        
+
         # Test that we can request document symbols from R files
         symbols, _ = language_server.request_document_symbols(utils_file)
         symbol_names = [s.get("name") for s in symbols]
