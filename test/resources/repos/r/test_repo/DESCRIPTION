@@ -1,0 +1,8 @@
+Package: TestRepo
+Title: Test R Package for Serena
+Version: 0.1.0
+Authors@R: person("Test", "User", email = "test@example.com", role = c("aut", "cre"))
+Description: Test package for R language server functionality.
+License: MIT
+Encoding: UTF-8
+LazyData: true
