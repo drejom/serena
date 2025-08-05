@@ -5,8 +5,18 @@ name: Codespell
 on:
   push:
     branches: [main]
+    paths-ignore:
+      - 'resources/**'
+      - 'lessons_learned.md'
+      - 'roadmap.md'
+      - 'CHANGELOG.md'
   pull_request:
     branches: [main]
+    paths-ignore:
+      - 'resources/**'
+      - 'lessons_learned.md'
+      - 'roadmap.md'
+      - 'CHANGELOG.md'
 
 permissions:
   contents: read

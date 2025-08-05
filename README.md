@@ -71,6 +71,7 @@ With Serena, we provide
      * PHP
      * Go (need to install go and gopls first)
      * Rust
+     * R (requires R and languageserver package - see [R LSP Setup](#r-language-server-setup))
      * C# (requires dotnet to be installed. We switched the underlying language server recently, please report any issues you encounter)
      * Java (_Note_: startup is slow, initial startup especially so. There may be issues with java on macos and linux, we are working on it.)
      * Elixir (Requires NextLS and Elixir install; **Windows not supported** - Next LS does not provide Windows binaries)
@@ -103,6 +104,7 @@ implementation.
         * [Local Installation](#local-installation)
       - [Using uvx](#using-uvx)
       - [Using Docker (Experimental)](#using-docker-experimental)
+    + [R Language Server Setup](#r-language-server-setup)
     + [SSE Mode](#sse-mode)
     + [Command-Line Arguments](#command-line-arguments)
   * [Configuration](#configuration)
@@ -243,6 +245,95 @@ Replace `/path/to/your/projects` with the absolute path to your projects directo
 - Consistent environment across different systems
 
 See the [Docker documentation](DOCKER.md) for detailed setup instructions, configuration options, and known limitations.
+
+#### R Language Server Setup
+
+Serena provides full R Language Server Protocol (LSP) support for R projects, including code completion, hover documentation, go-to-definition, find references, and document symbols.
+
+##### Prerequisites
+
+**Local Installation:**
+1. Install R (version 4.0 or later): https://www.r-project.org/
+2. Install the R languageserver package:
+   ```r
+   install.packages("languageserver")
+   ```
+
+**Docker Installation (Recommended for CI/CD):**
+- Use the pre-built container with R LSP support: `ghcr.io/drejom/serena:latest`
+- No local R installation required
+
+##### Setup Options
+
+**Option 1: Claude Code Integration**
+```bash
+# Add Serena with R LSP to Claude Code
+claude mcp add serena-r-lsp uv run serena-mcp-server
+```
+
+**Option 2: MetaMCP Integration** 
+```json
+{
+  "mcpServers": {
+    "serena-r-lsp": {
+      "command": "docker",
+      "args": [
+        "run", "--rm", "-i", "--network", "host",
+        "-e", "SERENA_DOCKER=1",
+        "ghcr.io/drejom/serena:latest",
+        "python", "-m", "serena.cli", "start_mcp_server"
+      ]
+    }
+  }
+}
+```
+
+**Option 3: Claude Desktop Configuration**
+```json
+{
+  "mcpServers": {
+    "serena-r-lsp": {
+      "command": "uv",
+      "args": ["run", "serena-mcp-server"],
+      "cwd": "/path/to/serena",
+      "env": {
+        "PATH": "/usr/local/bin:/usr/bin:/bin:/opt/homebrew/bin"
+      }
+    }
+  }
+}
+```
+
+##### R Project Structure
+
+For best results, organize your R projects with standard structure:
+```
+my-r-project/
+├── DESCRIPTION          # Package metadata
+├── NAMESPACE           # Package namespace
+├── R/                 # R source files
+│   ├── functions.R
+│   └── utils.R
+├── tests/             # Test files
+└── examples/          # Example scripts
+```
+
+##### Supported Features
+
+- **Code Completion**: Function names, arguments, and object names
+- **Hover Documentation**: Function signatures and documentation
+- **Go to Definition**: Navigate to function/variable definitions
+- **Find References**: Find all usages of symbols
+- **Document Symbols**: Outline view of functions and variables
+- **Diagnostics**: Syntax errors and warnings
+- **Formatting**: Code formatting support
+
+##### Troubleshooting
+
+- **R not found**: Ensure R is in your PATH (`which R`)
+- **languageserver not found**: Install with `R -e "install.packages('languageserver')"`
+- **Docker issues**: Use `SERENA_DOCKER=1` environment variable for containerized setups
+- **Performance**: R LSP initialization can take 10-15 seconds for large projects
 
 #### SSE Mode
 
