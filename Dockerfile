@@ -12,6 +12,8 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     build-essential \
     git \
     ssh \
+    r-base \
+    r-base-dev \
     && rm -rf /var/lib/apt/lists/*
 
 # Install pipx.
@@ -23,6 +25,9 @@ ENV PATH="${PATH}:/root/.local/bin"
 
 # Install the latest version of uv
 RUN curl -LsSf https://astral.sh/uv/install.sh | sh
+
+# Install R languageserver package
+RUN R -e "install.packages('languageserver', repos='https://cran.rstudio.com/', dependencies=TRUE)"
 
 # Set the working directory
 WORKDIR /workspaces/serena
