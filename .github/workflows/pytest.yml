@@ -3,22 +3,16 @@ name: Tests on CI
 on:
   pull_request:
     paths-ignore:
-      - '*.md'
+      - '**.md'
       - 'docs/**'
       - 'resources/**'
-      - 'lessons_learned.md'
-      - 'roadmap.md'
-      - 'CHANGELOG.md'
   push:
     branches:
       - main
     paths-ignore:
-      - '*.md'
+      - '**.md'
       - 'docs/**'
       - 'resources/**'
-      - 'lessons_learned.md'
-      - 'roadmap.md'
-      - 'CHANGELOG.md'
 
 concurrency:
   group: ci-${{ github.workflow }}-${{ github.ref }}

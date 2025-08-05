@@ -5,12 +5,9 @@ on:
     branches: [ main ]
     tags: [ 'v*' ]
     paths-ignore:
-      - '*.md'
+      - '**.md'
       - 'docs/**'
       - 'resources/**'
-      - 'lessons_learned.md'
-      - 'roadmap.md'
-      - 'CHANGELOG.md'
 
 env:
   REGISTRY: ghcr.io
