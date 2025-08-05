@@ -60,6 +60,8 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 # Set the working directory
 WORKDIR /workspaces/serena
 
+# Container is ready with R LSP support
+
 # Development target
 FROM base AS development
 # Copy all files for development
