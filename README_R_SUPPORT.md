@@ -16,55 +16,55 @@ This branch adds comprehensive R language support to Serena, enabling R code ana
 
 ## Installation for Claude Code & Claude Desktop
 
-### Option 1: Install from Source (Recommended)
+### Direct Installation (Recommended)
 
-1. **Clone this repository with R support:**
-   ```bash
-   git clone https://github.com/drejom/serena.git
-   cd serena
-   git checkout r-language-support
-   ```
+No cloning needed! Use `uvx` to run Serena with R support directly from this repository:
 
-2. **Install dependencies:**
-   ```bash
-   uv sync
-   ```
+**Add this to your `claude_desktop_config.json` or MCP configuration:**
 
-3. **Install Serena with R support:**
-   ```bash
-   uv pip install -e .
-   ```
+```json
+{
+  "mcpServers": {
+    "serena-r": {
+      "command": "uvx",
+      "args": [
+        "--from", "git+https://github.com/drejom/serena.git@r-language-support",
+        "serena-mcp-server",
+        "--project", "/path/to/your/r/project"
+      ]
+    }
+  }
+}
+```
 
-4. **Add to Claude Code/Desktop MCP settings:**
+That's it! `uvx` will automatically:
+- Fetch Serena from this repository
+- Use the `r-language-support` branch
+- Install dependencies in an isolated environment
+- Run the MCP server with R support
 
-   Add this to your `claude_desktop_config.json` or MCP configuration:
-   ```json
-   {
-     "mcpServers": {
-       "serena-r": {
-         "command": "serena-mcp-server",
-         "args": ["--project", "/path/to/your/r/project"]
-       }
-     }
-   }
-   ```
+### Alternative: Install Locally
 
-### Option 2: Direct Installation via Git
-
-Install directly from this branch:
+If you prefer a local installation:
 
 ```bash
 pip install git+https://github.com/drejom/serena.git@r-language-support
 ```
 
+Then use in your MCP config:
+```json
+{
+  "mcpServers": {
+    "serena-r": {
+      "command": "serena-mcp-server",
+      "args": ["--project", "/path/to/your/r/project"]
+    }
+  }
+}
+
 ## Usage
 
-1. **Activate an R project:**
-   ```bash
-   serena-mcp-server --project /path/to/your/r/project
-   ```
-
-2. **In Claude Code/Desktop**, you can now:
+**In Claude Code/Desktop**, you can now:
    - Get R symbol overviews: "Show me the functions in this R file"
    - Navigate R code: "Find the definition of calculate_stats function"
    - Analyze R scripts: "Explain what this R code does"
