@@ -16,11 +16,30 @@ This branch adds comprehensive R language support to Serena, enabling R code ana
 
 ## Installation for Claude Code & Claude Desktop
 
-### Direct Installation (Recommended)
+### Claude Code Installation (Recommended)
 
-No cloning needed! Use `uvx` to run Serena with R support directly from this repository:
+Install directly using the Claude CLI - no cloning needed!
 
-**Add this to your `claude_desktop_config.json` or MCP configuration:**
+```bash
+claude mcp add serena-r -s user -- uvx --from git+https://github.com/drejom/serena.git@r-language-support serena-mcp-server --project /path/to/your/r/project
+```
+
+That's it! This command:
+- Installs Serena with R support as an MCP server in Claude Code
+- Uses `uvx` to fetch directly from this repository's `r-language-support` branch
+- Sets it up with user scope (available across all your projects)
+- Automatically manages dependencies in an isolated environment
+
+**Verify installation:**
+```bash
+claude mcp list
+```
+
+You should see `serena-r` listed as an available MCP server.
+
+### Claude Desktop Installation
+
+For Claude Desktop, add this to your `claude_desktop_config.json`:
 
 ```json
 {
@@ -37,13 +56,7 @@ No cloning needed! Use `uvx` to run Serena with R support directly from this rep
 }
 ```
 
-That's it! `uvx` will automatically:
-- Fetch Serena from this repository
-- Use the `r-language-support` branch
-- Install dependencies in an isolated environment
-- Run the MCP server with R support
-
-### Alternative: Install Locally
+### Alternative: Local Installation
 
 If you prefer a local installation:
 
@@ -51,7 +64,12 @@ If you prefer a local installation:
 pip install git+https://github.com/drejom/serena.git@r-language-support
 ```
 
-Then use in your MCP config:
+Then for Claude Code:
+```bash
+claude mcp add serena-r -s user -- serena-mcp-server --project /path/to/your/r/project
+```
+
+Or for Claude Desktop config:
 ```json
 {
   "mcpServers": {
@@ -64,11 +82,23 @@ Then use in your MCP config:
 
 ## Usage
 
-**In Claude Code/Desktop**, you can now:
-   - Get R symbol overviews: "Show me the functions in this R file"
-   - Navigate R code: "Find the definition of calculate_stats function"
-   - Analyze R scripts: "Explain what this R code does"
-   - Edit R code intelligently with symbol-aware modifications
+### In Claude Code
+
+Once installed, you can access R analysis features:
+
+- **View available MCP servers:** Type `/mcp` to see all connected servers
+- **Access R project resources:** Type `@` to see R files and symbols from your project
+- **Symbol analysis:** "Show me the functions in data_analysis.R"
+- **Code navigation:** "Find the definition of calculate_stats function"
+- **Intelligent editing:** "Refactor this R function to use dplyr"
+
+### In Claude Desktop
+
+**Direct commands you can use:**
+- Get R symbol overviews: "Show me the functions in this R file"
+- Navigate R code: "Find the definition of calculate_stats function"  
+- Analyze R scripts: "Explain what this R code does"
+- Edit R code intelligently with symbol-aware modifications
 
 ## Supported R Features
 
