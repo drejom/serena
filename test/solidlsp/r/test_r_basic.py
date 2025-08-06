@@ -56,7 +56,7 @@ class TestRLanguageServer:
         """Test symbol retrieval from R files."""
         import os
 
-        utils_file = os.path.join("test_repo", "R", "utils.R")
+        utils_file = os.path.join("R", "utils.R")
 
         # Test that we can request document symbols from R files
         symbols, _ = language_server.request_document_symbols(utils_file)
