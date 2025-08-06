@@ -38,7 +38,7 @@ class RLanguageServer(SolidLanguageServer):
 
             # Check languageserver package
             result = subprocess.run(
-                ["R", "--slave", "-e", "if (!require('languageserver', quietly=TRUE)) quit(status=1)"],
+                ["R", "--no-echo", "-e", "if (!require('languageserver', quietly=TRUE)) quit(status=1)"],
                 capture_output=True,
                 text=True,
                 check=False,
@@ -59,7 +59,7 @@ class RLanguageServer(SolidLanguageServer):
         self._check_r_installation()
 
         # R command to start language server
-        r_cmd = ["R", "--slave", "-e", "languageserver::run()"]
+        r_cmd = "R --no-echo -e languageserver::run()"
 
         super().__init__(
             config,
