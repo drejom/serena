@@ -58,8 +58,9 @@ class RLanguageServer(SolidLanguageServer):
         # Check R installation
         self._check_r_installation()
 
-        # R command to start language server
-        r_cmd = "R --no-echo -e languageserver::run()"
+        # R command to start language server  
+        # Use --slave to suppress all prompts and output except from the language server
+        r_cmd = "R --slave -e languageserver::run()"
 
         super().__init__(
             config,
