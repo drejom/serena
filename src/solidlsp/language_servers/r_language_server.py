@@ -55,9 +55,8 @@ class RLanguageServer(SolidLanguageServer):
     def __init__(
         self, config: LanguageServerConfig, logger: LanguageServerLogger, repository_root_path: str, solidlsp_settings: SolidLSPSettings
     ):
-        # Skip dependency check in Docker environment
-        if not os.getenv("SERENA_DOCKER"):
-            self._check_r_installation()
+        # Check R installation
+        self._check_r_installation()
 
         # R command to start language server
         r_cmd = ["R", "--slave", "-e", "languageserver::run()"]
