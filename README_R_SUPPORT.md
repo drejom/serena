@@ -18,17 +18,18 @@ This branch adds comprehensive R language support to Serena, enabling R code ana
 
 ### Claude Code Installation (Recommended)
 
-Install directly using the Claude CLI - no cloning needed!
+Install Serena globally - **works with all your projects dynamically**:
 
 ```bash
-claude mcp add serena-r -s user -- uvx --from git+https://github.com/drejom/serena.git@r-language-support serena-mcp-server --project /path/to/your/r/project
+claude mcp add serena -s user -- uvx --from git+https://github.com/drejom/serena.git@r-language-support serena-mcp-server
 ```
 
-That's it! This command:
-- Installs Serena with R support as an MCP server in Claude Code
+That's it! This single command:
+- Installs Serena with R support as a global MCP server in Claude Code
 - Uses `uvx` to fetch directly from this repository's `r-language-support` branch
-- Sets it up with user scope (available across all your projects)
-- Automatically manages dependencies in an isolated environment
+- Works with **any project** - you can switch between R, Python, Go, etc. dynamically
+- No need for project-specific installations
+- Claude can activate projects at runtime: "Activate my R project at ~/data-analysis"
 
 **Verify installation:**
 ```bash
@@ -39,21 +40,23 @@ You should see `serena-r` listed as an available MCP server.
 
 ### Claude Desktop Installation
 
-For Claude Desktop, add this to your `claude_desktop_config.json`:
+For Claude Desktop, add this **global** configuration to your `claude_desktop_config.json`:
 
 ```json
 {
   "mcpServers": {
-    "serena-r": {
+    "serena": {
       "command": "uvx",
       "args": [
         "--from", "git+https://github.com/drejom/serena.git@r-language-support",
-        "serena-mcp-server",
-        "--project", "/path/to/your/r/project"
+        "serena-mcp-server"
       ]
     }
   }
 }
+```
+
+**No project path needed!** Claude can activate any project dynamically.
 ```
 
 ### Alternative: Local Installation
@@ -84,21 +87,33 @@ Or for Claude Desktop config:
 
 ### In Claude Code
 
-Once installed, you can access R analysis features:
+Once installed, you can work with **any project** dynamically:
 
+- **Activate projects:** "Activate my R project at ~/data-science/analysis"
+- **Switch languages:** "Now activate the Python project at ~/ml-models"
 - **View available MCP servers:** Type `/mcp` to see all connected servers
-- **Access R project resources:** Type `@` to see R files and symbols from your project
-- **Symbol analysis:** "Show me the functions in data_analysis.R"
-- **Code navigation:** "Find the definition of calculate_stats function"
-- **Intelligent editing:** "Refactor this R function to use dplyr"
+- **Access project resources:** Type `@` to see files and symbols from the active project
+- **Multi-language workflow:** Work with R, then Python, then Go - all in one session
 
 ### In Claude Desktop
 
-**Direct commands you can use:**
-- Get R symbol overviews: "Show me the functions in this R file"
-- Navigate R code: "Find the definition of calculate_stats function"  
-- Analyze R scripts: "Explain what this R code does"
-- Edit R code intelligently with symbol-aware modifications
+**Dynamic Project Commands:**
+
+```
+You: "Activate my R project in ~/research/covid-analysis"
+Claude: ✅ Activated R project, R language server ready
+
+You: "Show me the functions in data_analysis.R" 
+Claude: 📊 Found 8 R functions: calculate_stats(), plot_trends(), etc.
+
+You: "Now switch to my Python ML project in ~/models/sentiment"
+Claude: ✅ Switched to Python project, Python language server ready
+
+You: "Find the neural network class definition"
+Claude: 🧠 Found class NeuralNet in models/network.py:45
+```
+
+**Single installation works with ALL your projects!**
 
 ## Supported R Features
 
