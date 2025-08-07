@@ -12,7 +12,7 @@ This branch adds comprehensive R language support to Serena, enabling R code ana
 ## Prerequisites
 
 - R installed on your system (with `languageserver` package)
-- Install the R languageserver package: `install.packages("languageserver")`
+- Install the R language server package: `install.packages("languageserver")`
 
 ## Installation for Claude Code & Claude Desktop
 
@@ -21,22 +21,28 @@ This branch adds comprehensive R language support to Serena, enabling R code ana
 Install Serena globally - **works with all your projects dynamically**:
 
 ```bash
-claude mcp add serena -s user -- uvx --from git+https://github.com/drejom/serena.git@r-language-support serena-mcp-server
+claude mcp add serena -- uvx --from git+https://github.com/drejom/serena.git@r-language-support serena-mcp-server --context ide-assistant
+
 ```
 
 That's it! This single command:
+
 - Installs Serena with R support as a global MCP server in Claude Code
 - Uses `uvx` to fetch directly from this repository's `r-language-support` branch
+- Sets the `ide-assistant` context for optimal Claude Code integration
 - Works with **any project** - you can switch between R, Python, Go, etc. dynamically
 - No need for project-specific installations
 - Claude can activate projects at runtime: "Activate my R project at ~/data-analysis"
 
+**Note**: As of Claude Code v1.0.52+, instructions are read automatically from the MCP server.
+
 **Verify installation:**
+
 ```bash
 claude mcp list
 ```
 
-You should see `serena-r` listed as an available MCP server.
+You should see `serena` listed as an available MCP server.
 
 ### Claude Desktop Installation
 
@@ -57,7 +63,6 @@ For Claude Desktop, add this **global** configuration to your `claude_desktop_co
 ```
 
 **No project path needed!** Claude can activate any project dynamically.
-```
 
 ### Alternative: Local Installation
 
@@ -68,20 +73,22 @@ pip install git+https://github.com/drejom/serena.git@r-language-support
 ```
 
 Then for Claude Code:
+
 ```bash
-claude mcp add serena-r -s user -- serena-mcp-server --project /path/to/your/r/project
+claude mcp add serena -- serena-mcp-server --context ide-assistant
 ```
 
 Or for Claude Desktop config:
+
 ```json
 {
   "mcpServers": {
-    "serena-r": {
-      "command": "serena-mcp-server",
-      "args": ["--project", "/path/to/your/r/project"]
+    "serena": {
+      "command": "serena-mcp-server"
     }
   }
 }
+```
 
 ## Usage
 
@@ -99,11 +106,11 @@ Once installed, you can work with **any project** dynamically:
 
 **Dynamic Project Commands:**
 
-```
+```text
 You: "Activate my R project in ~/research/covid-analysis"
 Claude: ✅ Activated R project, R language server ready
 
-You: "Show me the functions in data_analysis.R" 
+You: "Show me the functions in data_analysis.R"
 Claude: 📊 Found 8 R functions: calculate_stats(), plot_trends(), etc.
 
 You: "Now switch to my Python ML project in ~/models/sentiment"
@@ -122,7 +129,7 @@ Claude: 🧠 Found class NeuralNet in models/network.py:45
 - **Variables**: Global and local variable detection
 - **Data Processing**: Data frame operations and statistical functions
 - **R Markdown**: Support for `.Rmd` files
-- **R Sweave**: Support for `.Rnw` files
+- **R Weave**: Support for `.Rnw` files
 
 ## Example
 
@@ -160,12 +167,14 @@ All 4 R language tests should pass:
 
 ## Troubleshooting
 
-**R languageserver not found:**
+**R language server not found:**
+
 ```bash
 R -e "install.packages('languageserver')"
 ```
 
 **Permission issues:**
+
 ```bash
 R --vanilla --quiet --slave -e 'languageserver::run()'
 ```
