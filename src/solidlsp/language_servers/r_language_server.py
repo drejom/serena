@@ -6,8 +6,10 @@ import threading
 
 from overrides import override
 
+from solidlsp import ls_types
 from solidlsp.ls import SolidLanguageServer
 from solidlsp.ls_config import LanguageServerConfig
+from solidlsp.ls_exceptions import SolidLSPException
 from solidlsp.ls_logger import LanguageServerLogger
 from solidlsp.lsp_protocol_handler.lsp_types import InitializeParams
 from solidlsp.lsp_protocol_handler.server import ProcessLaunchInfo
@@ -58,9 +60,10 @@ class RLanguageServer(SolidLanguageServer):
         # Check R installation
         self._check_r_installation()
 
-        # R command to start language server  
+        # R command to start language server
         # Use --vanilla for minimal startup and --quiet to suppress all output except LSP
-        r_cmd = "R --vanilla --quiet --slave -e 'languageserver::run()'"
+        # Set specific options to improve parsing stability
+        r_cmd = 'R --vanilla --quiet --slave -e "options(languageserver.debug_mode = FALSE); languageserver::run()"'
 
         super().__init__(
             config,
@@ -165,3 +168,82 @@ class RLanguageServer(SolidLanguageServer):
 
         # R Language Server is ready after initialization
         self.server_ready.set()
+
+    @override
+    def request_document_symbols(
+        self, relative_file_path: str, include_body: bool = False
+    ) -> tuple[list[ls_types.UnifiedSymbolInformation], list[ls_types.UnifiedSymbolInformation]]:
+        """
+        Override document symbol request with R-specific error handling.
+
+        The R languageserver can throw "invalid AST" errors (-32001) when parsing
+        certain R files. This method provides graceful fallback to empty results
+        rather than crashing.
+        """
+        try:
+            return super().request_document_symbols(relative_file_path, include_body)
+        except SolidLSPException as e:
+            # Check if this is an AST parsing error (code -32001)
+            if "invalid AST" in str(e).lower() or "-32001" in str(e):
+                self.logger.log(
+                    f"R Language Server AST parsing error for {relative_file_path}: {e}. "
+                    f"This often happens with complex R syntax or when the file has "
+                    f"constructs that the languageserver cannot parse. Returning empty symbols.",
+                    logging.WARNING,
+                )
+                # Try fallback method for better symbol extraction
+                return self._extract_r_symbols_fallback(relative_file_path)
+            else:
+                # Re-raise other types of LSP exceptions
+                raise
+
+    def _extract_r_symbols_fallback(
+        self, relative_file_path: str
+    ) -> tuple[list[ls_types.UnifiedSymbolInformation], list[ls_types.UnifiedSymbolInformation]]:
+        """
+        Fallback method to extract R function symbols using regex parsing.
+
+        This is used when the languageserver fails with AST errors.
+        Only extracts function definitions for now.
+        """
+        import re
+
+        symbols = []
+
+        try:
+            # Read the file content
+            file_path = os.path.join(self.repository_root_path, relative_file_path)
+            with open(file_path, encoding="utf-8") as f:
+                content = f.read()
+
+            # Pattern to match R function definitions
+            # Matches: function_name <- function(params) or function_name = function(params)
+            function_pattern = r"^\s*([a-zA-Z_][a-zA-Z0-9_.]*)\s*<-\s*function\s*\("
+
+            lines = content.split("\n")
+            for line_num, line in enumerate(lines, 1):
+                match = re.match(function_pattern, line)
+                if match:
+                    function_name = match.group(1)
+                    symbols.append(
+                        {
+                            "name": function_name,
+                            "kind": 12,  # SymbolKind.Function
+                            "range": {
+                                "start": {"line": line_num - 1, "character": match.start(1)},
+                                "end": {"line": line_num - 1, "character": match.end(1)},
+                            },
+                            "selectionRange": {
+                                "start": {"line": line_num - 1, "character": match.start(1)},
+                                "end": {"line": line_num - 1, "character": match.end(1)},
+                            },
+                        }
+                    )
+
+            self.logger.log(f"Fallback R symbol extraction found {len(symbols)} function(s) in {relative_file_path}", logging.INFO)
+
+            return symbols, symbols
+
+        except Exception as e:
+            self.logger.log(f"Fallback R symbol extraction failed for {relative_file_path}: {e}", logging.WARNING)
+            return [], []
