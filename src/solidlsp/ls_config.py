@@ -43,6 +43,7 @@ class Language(str, Enum):
     CLOJURE = "clojure"
     ELIXIR = "elixir"
     TERRAFORM = "terraform"
+    SWIFT = "swift"
     BASH = "bash"
     # Experimental or deprecated Language Servers
     TYPESCRIPT_VTS = "typescript_vts"
@@ -107,6 +108,8 @@ class Language(str, Enum):
                 return FilenameMatcher("*.ex", "*.exs")
             case self.TERRAFORM:
                 return FilenameMatcher("*.tf", "*.tfvars", "*.tfstate")
+            case self.SWIFT:
+                return FilenameMatcher("*.swift")
             case self.BASH:
                 return FilenameMatcher("*.sh", "*.bash")
             case _:
