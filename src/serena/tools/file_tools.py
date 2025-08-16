@@ -100,6 +100,15 @@ class ListDirTool(Tool):
             required for the task.
         :return: a JSON object with the names of directories and files within the given directory
         """
+        # Check if the directory exists before validation
+        if not self.project.relative_path_exists(relative_path):
+            error_info = {
+                "error": f"Directory not found: {relative_path}",
+                "project_root": self.get_project_root(),
+                "hint": "Check if the path is correct relative to the project root",
+            }
+            return json.dumps(error_info)
+
         self.project.validate_relative_path(relative_path)
 
         dirs, files = scan_directory(
@@ -178,6 +187,7 @@ class ReplaceRegexTool(Tool, ToolMarkerCanEdit):
             Dot matches all characters, multi-line matching is enabled.
         :param repl: the string to replace the matched content with, which may contain
             backreferences like \1, \2, etc.
+            Make sure to escape special characters appropriately, e.g., use `\\n` for a literal `\n`.
         :param allow_multiple_occurrences: if True, the regex may match multiple occurrences in the file
             and all of them will be replaced.
             If this is set to False and the regex matches multiple occurrences, an error will be returned
