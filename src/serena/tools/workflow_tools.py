@@ -51,7 +51,61 @@ class OnboardingTool(Tool):
         :return: instructions on how to create the onboarding information
         """
         system = platform.system()
+
+        # Pre-warm R language server cache if this is an R project
+        active_project = self.agent.get_active_project()
+        if active_project and active_project.language.name.lower() == "r":
+            self._prewarm_r_language_server()
+
         return self.prompt_factory.create_onboarding_prompt(system=system)
+
+    def _prewarm_r_language_server(self) -> None:
+        """
+        Pre-warm the R language server cache by requesting symbols for all R files.
+        This prevents the 1+ minute delay on first symbol search after onboarding.
+        """
+        try:
+            from .file_tools import FindFileTool
+
+            # Get all R files in the project
+            find_file_tool = self.agent.get_tool(FindFileTool)
+            r_files_result = find_file_tool.apply(file_mask="*.R", relative_path=".")
+            r_files = json.loads(r_files_result)
+
+            if not r_files:
+                return
+
+            print(f"Pre-warming R language server cache for {len(r_files)} R files...")
+
+            # Ensure language server is initialized
+            if not self.agent.is_using_language_server():
+                print("Language server not configured, skipping pre-warming")
+                return
+
+            # Initialize language server if not already running
+            if self.agent.language_server is None:
+                print("Initializing R language server for pre-warming...")
+                self.agent.reset_language_server()
+
+            ls = self.agent.language_server
+            if ls is None:
+                print("Failed to initialize language server for pre-warming")
+                return
+
+            cached_count = 0
+            for r_file in r_files[:10]:  # Limit to first 10 files to avoid excessive startup time
+                try:
+                    print(f"Caching symbols for {r_file}...")
+                    ls.request_document_symbols(r_file, include_body=False)
+                    cached_count += 1
+                except Exception as e:
+                    print(f"Failed to cache symbols for {r_file}: {e}")
+
+            print(f"R language server cache pre-warming completed: {cached_count}/{len(r_files[:10])} files cached")
+
+        except Exception as e:
+            # Don't fail onboarding if pre-warming fails
+            print(f"R language server pre-warming failed: {e}")
 
 
 class ThinkAboutCollectedInformationTool(Tool):
