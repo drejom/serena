@@ -169,6 +169,9 @@ class RLanguageServer(SolidLanguageServer):
         # R Language Server is ready after initialization
         self.server_ready.set()
 
+        # Pre-warm the cache by indexing R files to prevent 1+ minute delay on first symbol search
+        self._prewarm_cache()
+
     @override
     def request_document_symbols(
         self, relative_file_path: str, include_body: bool = False
@@ -247,3 +250,41 @@ class RLanguageServer(SolidLanguageServer):
         except Exception as e:
             self.logger.log(f"Fallback R symbol extraction failed for {relative_file_path}: {e}", logging.WARNING)
             return [], []
+
+    def _prewarm_cache(self) -> None:
+        """
+        Pre-warm the R language server cache by requesting symbols for R files.
+        This prevents the 1+ minute delay on first symbol search by doing the
+        expensive parsing work during language server initialization.
+        """
+        try:
+            import glob
+
+            # Find all R files in the project
+            r_files = []
+            for pattern in ["*.R", "*.r"]:
+                r_files.extend(glob.glob(os.path.join(self.repository_root_path, "**", pattern), recursive=True))
+
+            # Convert to relative paths
+            r_files = [os.path.relpath(f, self.repository_root_path) for f in r_files]
+
+            if not r_files:
+                return
+
+            self.logger.log(f"Pre-warming R language server cache for {len(r_files)} R files...", logging.INFO)
+
+            cached_count = 0
+            # Process first 10 files to balance startup time vs cache coverage
+            for r_file in r_files[:10]:
+                try:
+                    self.logger.log(f"Caching symbols for {r_file}...", logging.DEBUG)
+                    self.request_document_symbols(r_file, include_body=False)
+                    cached_count += 1
+                except Exception as e:
+                    self.logger.log(f"Failed to cache symbols for {r_file}: {e}", logging.WARNING)
+
+            self.logger.log(f"R language server cache pre-warming completed: {cached_count}/{len(r_files[:10])} files cached", logging.INFO)
+
+        except Exception as e:
+            # Don't fail language server initialization if pre-warming fails
+            self.logger.log(f"R language server pre-warming failed: {e}", logging.WARNING)
